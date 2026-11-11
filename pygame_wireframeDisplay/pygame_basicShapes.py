@@ -197,7 +197,7 @@ def marchingCubes():
                                    ellip_base[2:, ...]), axis=0)
     
     # Use marching cubes to obtain the surface mesh of these ellipsoids
-    verts, faces, normals, values = measure.marching_cubes_lewiner(ellip_double, 0)
+    verts, faces, normals, values = measure.marching_cubes(ellip_double, 0)  # Lewiner method; marching_cubes_lewiner was removed in scikit-image 0.19
     
 
     model = wf.Wireframe()
@@ -222,7 +222,7 @@ def MRI():
     data = first_rsn.dataobj
     data[data < 60] = 0
     
-    verts, faces, normals, values = measure.marching_cubes_lewiner(data, level=5,step_size=3)
+    verts, faces, normals, values = measure.marching_cubes(data, level=5, step_size=3)
 
     model = wf.Wireframe()
     model.addNodes(verts)
