@@ -122,3 +122,25 @@ def test_early_matrix_display_script_is_valid_python():
     pv.translateAll([10, 0, 0])
     assert np.allclose(pv.wireframes["cube"].nodes[0, :3], [60, 50, 50])
     pygame.quit()
+
+
+def test_viewer_keys_drive_the_shared_scene_operations():
+    """ProjectionViewer's keys come from wireframe_scene.KEY_BINDINGS and give the same nodes as WireframeScene."""
+    import pygame
+    import pygame_MatrixDisplay as md
+    from wireframe_scene import KEY_BINDINGS, WireframeScene
+    pv, ref = md.ProjectionViewer(600, 600), WireframeScene(600, 600)
+    for s in (pv, ref):
+        s.addWireframe("o", shapes.Octasphere())
+        s.centerAll()
+    assert len(md.key_to_function) == len(KEY_BINDINGS)
+    for key, *_ in KEY_BINDINGS:
+        if key != "9":
+            md.key_to_function[getattr(pygame, "K_" + key)](pv)
+            ref.apply_key(key)
+    for _ in range(5):
+        pv.animate_update()
+        ref.animate_update()
+    pv.display()
+    assert np.array_equal(pv.wireframes["o"].nodes, ref.wireframes["o"].nodes)
+    pygame.quit()

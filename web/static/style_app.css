@@ -1,0 +1,29 @@
+/* Wireframe Display: cyan / violet accent on the shared neon theme, plus page styles. */
+:root { --accent:#5ef2ff; --accent2:#b77bff; --accent3:#ffd166; --glow:rgba(94,242,255,.14); }
+button, .btn, .seg button.on { color:#021418; }
+.door b { color:var(--accent); }
+.fig { margin:0; } .fig canvas, .sim .view canvas { width:100%; height:auto; aspect-ratio:1; display:block; background:#0a0a32; border:1px solid var(--line); border-radius:6px; }
+.fig figcaption { margin-top:6px; }
+.herow { align-items:center; }
+/* viewer: controls left, screen right */
+.sim { display:grid; grid-template-columns:310px 1fr; gap:20px; align-items:start; margin-top:10px; }
+.sim .view { max-width:640px; }
+.sim .view canvas { touch-action:none; cursor:grab; } .sim .view canvas:active { cursor:grabbing; }
+.sim .view canvas:focus-visible { outline:2px solid var(--accent3); }
+.sim .controls { background:rgba(11,12,26,.92); border:1px solid var(--line); border-radius:6px; padding:10px 16px 16px; }
+.controls button { margin-top:8px; }
+.kgroup { margin-top:10px; } .kgroup .small { display:block; margin-bottom:3px; }
+.seg button { padding:6px 10px; font-size:13px; min-width:34px; }
+.seg button:active { background:var(--accent); color:#021418; }
+.flags { margin-top:10px; } label.chk { display:flex; gap:8px; align-items:flex-start; margin:6px 0; color:var(--ink); }
+label.chk input { margin-top:4px; }
+.readout { font:13px var(--mono); background:rgba(3,5,10,.9); border:1px solid var(--line); border-radius:4px; padding:10px 12px; margin-top:12px; }
+.readout div { display:flex; justify-content:space-between; gap:10px; } .readout b { color:var(--accent); }
+/* gallery */
+.gal canvas { width:100%; height:auto; aspect-ratio:1; display:block; border-radius:4px; margin-bottom:8px; background:#0a0a32; }
+.gal .card span.mono { font-size:12px; color:var(--mute); }
+table.check td.num { font:13px var(--mono); text-align:right; white-space:nowrap; }
+kbd { font:12px var(--mono); border:1px solid var(--line); border-bottom-width:2px; border-radius:3px; padding:0 5px; color:var(--ink); }
+@media (max-width:860px) { .sim, .herow { grid-template-columns:1fr; } .sim .view { order:-1; } }
+[hidden] { display:none !important; }
+.controls .seg button { color:var(--ink); font-weight:600; }
