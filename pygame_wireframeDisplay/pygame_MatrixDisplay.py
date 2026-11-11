@@ -432,26 +432,28 @@ if __name__ == '__main__':
     w,h,d = (50,50,50)
     u,v = (30,30)
     
-    wf_models = {'cube' : Cuboid(args1=(x,y,z), args2=(w,h,d)),
-               'tetra': Tetrahedron(args1=(0,0,0), edgeLength=100),
-               'octa' : Octahedron(),
-               'octasphere' : Octasphere(),
-               'icosahedron' : Icosahedron (),
-               'ball' : Spheroid(args1=(x,y,z), args2=(h, w, d), resolution=10),
-               'grid' : HorizontalGrid(args1=(x,y,z), args2=(10,10), args3=(10,20)),
-               'fractal': FractalLandscape(origin=(x,y,z), dimensions=(400,400), iterations=5, height=40),
-               'teapot' : loadOBJ('teapot.obj'),
-               'machingCubes' : marchingCubes(),
-               'hull' : convexHull(torusPts=True),
+    # Build only the model that is shown: teapot.obj is not in the repository, and building every
+    # model up front made the script crash at start-up when it was missing.
+    wf_models = {'cube' : lambda: Cuboid(args1=(x,y,z), args2=(w,h,d)),
+               'tetra': lambda: Tetrahedron(args1=(0,0,0), edgeLength=100),
+               'octa' : lambda: Octahedron(),
+               'octasphere' : lambda: Octasphere(),
+               'icosahedron' : lambda: Icosahedron (),
+               'ball' : lambda: Spheroid(args1=(x,y,z), args2=(h, w, d), resolution=10),
+               'grid' : lambda: HorizontalGrid(args1=(x,y,z), args2=(10,10), args3=(10,20)),
+               'fractal': lambda: FractalLandscape(origin=(x,y,z), dimensions=(400,400), iterations=5, height=40),
+               'teapot' : lambda: loadOBJ('teapot.obj'),
+               'machingCubes' : lambda: marchingCubes(),
+               'hull' : lambda: convexHull(torusPts=True),
                #'superRes_data' : loadNIKONFile(r"C:\Users\g_dic\OneDrive\Desktop\batchTest\0_trial_1_superes_cropped.txt"),
                #'mri_data' : MRI(),
-               'letter' : letter(),
-               'param_sphere' : parametric_surface(u, v, sphere),
-               'param_torus' : parametric_surface(u, v, torus),               
+               'letter' : lambda: letter(),
+               'param_sphere' : lambda: parametric_surface(u, v, sphere),
+               'param_torus' : lambda: parametric_surface(u, v, torus),               
                }
     
     wf_name = 'octasphere'
-    pv.addWireframe(wf_name, wf_models[wf_name])
+    pv.addWireframe(wf_name, wf_models[wf_name]())
     pv.centerAll()
      
     
