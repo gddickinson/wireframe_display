@@ -180,24 +180,31 @@ class Wireframe:
 
 
     def subdivide(self):
-        """Subdivide each triangle into four triangles, pushing verts to the unit sphere"""
-        
-        verts  = self.nodesToList()
-        faces = self.facesToList()
+        """Subdivide each triangle into four triangles, pushing the new verts onto the shape's own sphere.
+
+        The sphere is centred on the shape's centre with the mean vertex distance as radius (for a unit shape at
+        the origin this is the unit sphere). Meshes whose faces are not all triangles are left unchanged.
+        """
+        faces = [tuple(int(i) for i in f) for f in self.facesToList()]
+        if not faces or any(len(f) != 3 for f in faces):
+            return
+        centre = self.findCentre()[:3]
+        verts = [np.asarray(v, dtype=float) - centre for v in self.nodesToList()]
+        radius = float(np.mean([np.linalg.norm(v) for v in verts]))
         self.nodes = np.zeros((0,4))
         self.faces = []
         self.edges = []
-        
+
         triangles = len(faces)
         for faceIndex in range(triangles):
-    
+
             # Create three new verts at the midpoints of each edge:
             face = faces[faceIndex]
-            a, b, c = np.float32([verts[vertIndex] for vertIndex in face])
-            verts.append(pyrr.vector.normalize(a + b))
-            verts.append(pyrr.vector.normalize(b + c))
-            verts.append(pyrr.vector.normalize(a + c))
-    
+            a, b, c = [verts[vertIndex] for vertIndex in face]
+            verts.append(radius * pyrr.vector.normalize(a + b))
+            verts.append(radius * pyrr.vector.normalize(b + c))
+            verts.append(radius * pyrr.vector.normalize(a + c))
+
             # Split the current triangle into four smaller triangles:
             i = len(verts) - 3
             j, k = i + 1, i + 2
@@ -206,11 +213,11 @@ class Wireframe:
             faces.append((i, face[1], j))
             faces[faceIndex] = (k, j, face[2])
 
-            
-        self.addNodes(verts)
+
+        self.addNodes(np.array(verts) + centre)
         self.addFaces(faces)
-    
-        return 
+
+        return
 
     def getNodeColour(self):
         return self.colour

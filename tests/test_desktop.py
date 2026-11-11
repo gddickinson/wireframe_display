@@ -59,3 +59,30 @@ def _centred_octasphere(cx=300.0, cy=300.0, cz=0.0):
     o = shapes.Octasphere()
     o.moveTo(cx, cy, cz)
     return o
+
+
+def test_subdivide_keeps_shape_where_it_is():
+    """New vertices go onto the shape's own sphere, not the unit sphere at the origin."""
+    o = _centred_octasphere()
+    centre = o.findCentre()[:3]
+    r0 = np.linalg.norm(o.nodes[:, :3] - centre, axis=1).mean()
+    o.subdivide()
+    d = np.linalg.norm(o.nodes[:, :3] - centre, axis=1)
+    assert len(o.nodes) > 1000
+    assert np.allclose(d, r0, rtol=0.05), (d.min(), d.max(), r0)
+
+
+def test_subdivide_unit_octahedron_unchanged_behaviour():
+    """For a unit shape at the origin the result is the classic subdivision (all vertices on the unit sphere)."""
+    o = shapes.Octahedron()
+    o.subdivide()
+    assert len(o.faces) == 32
+    assert np.allclose(np.linalg.norm(o.nodes[:, :3], axis=1), 1.0, atol=1e-6)
+
+
+def test_subdivide_skips_non_triangle_meshes():
+    """Pressing M with a cube (quad faces) used to crash the viewer with a ValueError."""
+    c = shapes.Cuboid(args1=(300, 300, 250), args2=(50, 50, 50))
+    before = c.nodes.copy()
+    c.subdivide()
+    assert np.array_equal(c.nodes, before) and len(c.faces) == 6
