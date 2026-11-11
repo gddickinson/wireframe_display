@@ -86,3 +86,13 @@ def test_subdivide_skips_non_triangle_meshes():
     before = c.nodes.copy()
     c.subdivide()
     assert np.array_equal(c.nodes, before) and len(c.faces) == 6
+
+
+def test_history_keeps_previous_positions():
+    """update() stores the old nodes; rotate/scale/shear change nodes in place, so it must store a copy."""
+    t = shapes.Tetrahedron(args1=(300, 300, 0), edgeLength=100)
+    start = t.nodes.copy()
+    c = t.findCentre()
+    t.update("rotate", c, np.array([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0], [0, 0, 0, 1.0]]))
+    assert np.allclose(t.history[-1], start)
+    assert not np.allclose(t.nodes, start)

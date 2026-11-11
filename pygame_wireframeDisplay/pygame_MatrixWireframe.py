@@ -164,7 +164,7 @@ class Wireframe:
     def update(self, function, *args):
         """ update call from display """
         #save old nodes
-        self.history.append(self.nodes)        
+        self.history.append(self.nodes.copy())  # copy: rotate/scale/shear change self.nodes in place
         
         #perform transform
         getattr(self, function)(*args)        
