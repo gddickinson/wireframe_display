@@ -18,7 +18,9 @@ def read_obj(filename):
     vertices = []
     with open(filename) as file:
         for line in file:
-            components = line.strip(' \n').split(' ')
+            components = line.split()  # any run of spaces/tabs; blank lines give []
+            if not components:
+                continue
             if components[0] == "f": # face data
                 # e.g. "f 1/1/1/ 2/2/2 3/3/3 4/4/4 ..."
                 indices = list(map(lambda c: int(c.split('/')[0]) - 1, components[1:]))

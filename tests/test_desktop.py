@@ -96,3 +96,11 @@ def test_history_keeps_previous_positions():
     t.update("rotate", c, np.array([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0], [0, 0, 0, 1.0]]))
     assert np.allclose(t.history[-1], start)
     assert not np.allclose(t.nodes, start)
+
+
+def test_load_obj_accepts_repeated_spaces(tmp_path):
+    """OBJ files often pad with several spaces ("v  30.2180 89.5757 -76.8089", the example in the code's own comment)."""
+    p = tmp_path / "quad.obj"
+    p.write_text("# test\n\nv  0.0 0.0  0.0\nv 1.0  0.0 0.0\nv 1.0 1.0 0.0\nv  0.0 1.0 0.0\nvn 0 0 1\nf 1/1/1  2/2/1 3/3/1 4/4/1\n")
+    m = shapes.loadOBJ(str(p))
+    assert m.nodes.shape == (4, 4) and len(m.faces) == 2
