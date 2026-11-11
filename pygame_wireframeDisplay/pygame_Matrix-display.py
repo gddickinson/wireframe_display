@@ -8,7 +8,9 @@ key_to_function = {
  pygame.K_LEFT: (lambda x: x.translateAll([-10, 0, 0])),
  pygame.K_RIGHT:(lambda x: x.translateAll([ 10, 0, 0])),
  pygame.K_DOWN: (lambda x: x.translateAll([0,  10, 0])),
- pygame.K_UP:   (lambda x: x.translateAll([0, -10, 0])),
+ pygame.K_UP:   (lambda x: x.translateAll([0, -10, 0]))}
+
+cube_nodes = [(x,y,z) for x in (50,250) for y in (50,250) for z in (50,250)]
 
 class ProjectionViewer:
     """ Displays 3D objects on a Pygame screen """
@@ -66,9 +68,8 @@ class ProjectionViewer:
     def translateAll(self, vector):
         """ Translate all wireframes along a given axis by d units. """
     
-        matrix = wf.translationMatrix(*vector)
-        for wireframe in self.wireframes.itervalues():
-            wireframe.transform(matrix)
+        for wireframe in self.wireframes.values():
+            wireframe.transform(wireframe.translationMatrix(*vector))
 
 
 

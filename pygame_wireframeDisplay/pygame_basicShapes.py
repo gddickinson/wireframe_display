@@ -820,4 +820,5 @@ if __name__ == '__main__':
     #imageTest = loadImageLetter(r"C:\Users\g_dic\OneDrive\Pictures\Camera Roll\A.jpg", sigma=3)      
     #imageTest.output()
     
-    hexahedron = Hexahedron()
+    tetra = Tetrahedron()  # was Hexahedron(), which is not defined anywhere
+    tetra.output()

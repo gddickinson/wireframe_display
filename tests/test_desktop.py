@@ -104,3 +104,21 @@ def test_load_obj_accepts_repeated_spaces(tmp_path):
     p.write_text("# test\n\nv  0.0 0.0  0.0\nv 1.0  0.0 0.0\nv 1.0 1.0 0.0\nv  0.0 1.0 0.0\nvn 0 0 1\nf 1/1/1  2/2/1 3/3/1 4/4/1\n")
     m = shapes.loadOBJ(str(p))
     assert m.nodes.shape == (4, 4) and len(m.faces) == 2
+
+
+def test_basic_shapes_module_runs_as_script():
+    """`python pygame_basicShapes.py` referenced an undefined Hexahedron()."""
+    runpy.run_path(str(PKG / "pygame_basicShapes.py"), run_name="__main__")
+
+
+def test_early_matrix_display_script_is_valid_python():
+    """pygame_Matrix-display.py (an earlier tutorial step) had an unclosed dict and Python 2 itervalues()."""
+    import pygame
+    ns = runpy.run_path(str(PKG / "pygame_Matrix-display.py"), run_name="not_main")
+    pv = ns["ProjectionViewer"](400, 300)
+    cube = wf.Wireframe()
+    cube.addNodes(np.array(ns["cube_nodes"]))
+    pv.addWireframe("cube", cube)
+    pv.translateAll([10, 0, 0])
+    assert np.allclose(pv.wireframes["cube"].nodes[0, :3], [60, 50, 50])
+    pygame.quit()
