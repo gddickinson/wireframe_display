@@ -30,66 +30,41 @@ class Wireframe:
         for i, (node1, node2) in enumerate(self.edges):
             print ("   %d: %d -> %d" % (i, node1, node2))
 
+    # The methods below came from the object version (node.x, node.y, node.z); they now work on the numpy rows.
+    AXES = {'x': 0, 'y': 1, 'z': 2}
+
     def translate(self, axis, d):
         """ Add constant 'd' to the coordinate 'axis' of each node of a wireframe """
-            
-        if axis in ['x', 'y', 'z']:
-            for node in self.nodes:
-                setattr(node, axis, getattr(node, axis) + d)
+        if axis in self.AXES:
+            self.nodes[:, self.AXES[axis]] += d
 
     def scale(self, centre_x, centre_y, scale):
         """ Scale the wireframe from the centre of the screen """
-    
-        for node in self.nodes:
-            node.x = centre_x + scale * (node.x - centre_x)
-            node.y = centre_y + scale * (node.y - centre_y)
-            node.z *= scale
+        self.nodes[:, 0] = centre_x + scale * (self.nodes[:, 0] - centre_x)
+        self.nodes[:, 1] = centre_y + scale * (self.nodes[:, 1] - centre_y)
+        self.nodes[:, 2] *= scale
 
     def findCentre(self):
         """ Find the centre of the wireframe. """
-    
-        num_nodes = len(self.nodes)
-        meanX = sum([node.x for node in self.nodes]) / num_nodes
-        meanY = sum([node.y for node in self.nodes]) / num_nodes
-        meanZ = sum([node.z for node in self.nodes]) / num_nodes
-    
-        return (meanX, meanY, meanZ)
+        return tuple(self.nodes[:, :3].mean(axis=0))
 
-    def rotateZ(self, radians, args=(0,0,0)):    
-        cx = args[0]
-        cy = args[1]
-        cz = args[2] 
-        for node in self.nodes:
-            x      = node.x - cx
-            y      = node.y - cy
-            d      = math.hypot(y, x)
-            theta  = math.atan2(y, x) + radians
-            node.x = cx + d * math.cos(theta)
-            node.y = cy + d * math.sin(theta)
+    def _rotate(self, i, j, radians, centre):
+        """ Rotate the (i, j) coordinates about the centre: angle measured from axis j towards axis i, as before. """
+        a = self.nodes[:, i] - centre[i]
+        b = self.nodes[:, j] - centre[j]
+        d = np.hypot(a, b)
+        theta = np.arctan2(a, b) + radians
+        self.nodes[:, j] = centre[j] + d * np.cos(theta)
+        self.nodes[:, i] = centre[i] + d * np.sin(theta)
+
+    def rotateZ(self, radians, args=(0,0,0)):
+        self._rotate(1, 0, radians, args)
 
     def rotateX(self, radians, args=(0,0,0)):
-        cx = args[0]
-        cy = args[1]
-        cz = args[2]                
-        for node in self.nodes:
-            y      = node.y - cy
-            z      = node.z - cz
-            d      = math.hypot(y, z)
-            theta  = math.atan2(y, z) + radians
-            node.z = cz + d * math.cos(theta)
-            node.y = cy + d * math.sin(theta)
-    
+        self._rotate(1, 2, radians, args)
+
     def rotateY(self, radians, args=(0,0,0)):
-        cx = args[0]
-        cy = args[1]
-        cz = args[2]              
-        for node in self.nodes:
-            x      = node.x - cx
-            z      = node.z - cz
-            d      = math.hypot(x, z)
-            theta  = math.atan2(x, z) + radians
-            node.z = cz + d * math.cos(theta)
-            node.x = cx + d * math.sin(theta)
+        self._rotate(0, 2, radians, args)
 
 
     def transform(self, matrix):
