@@ -29,9 +29,8 @@ python pygame_MatrixDisplay.py      # starts with the octasphere; change wf_name
 | `9` | change every shape to the tetrahedron |
 
 The key table and all scene operations live in the Pygame-free `wireframe_scene.py` (shared with the web viewer);
-`pygame_MatrixDisplay.py` adds the window, event loop and drawing. Note: `ProjectionViewer.timedAction` tries to remove every shape 10 seconds after it was created, by `wireframe.name`.
-That name matches the scene key only for some demo models (cube, tetra, grid), which then vanish after 10 s; for the
-others (e.g. the default octasphere, whose name is empty) nothing is removed and "not found" is printed every frame; see SESSION_LOG.md.
+`pygame_MatrixDisplay.py` adds the window, event loop and drawing. Timed demo: `python pygame_MatrixDisplay.py --demo [SECONDS]` shows each demo model for SECONDS (default 10),
+scaled to fit, then the next (`WireframeScene.startTimedDemo` / `timedAction`; off by default).
 
 `pygame_wireframe_test.py` and `pygame_wireframe_examples.py` import modules (`wireframe`, `wireframeDisplay`,
 `basicShapes`) that are not in this repository, so they do not run as they are.

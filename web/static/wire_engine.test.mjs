@@ -61,6 +61,21 @@ for (const [slug, c] of Object.entries(FIX.scenes)) {
   assert.deepEqual(m.nodes.map(v => v.slice(0, 3)), FIX.obj.nodes);
   assert.deepEqual(m.faces, FIX.obj.faces); assert.deepEqual(m.edges, FIX.obj.edges); n++;
 }
+// 5b. fitAll and the timed demo (pygame_MatrixDisplay.py --demo)
+for (const [slug, smp] of Object.entries(FIX.fit)) {
+  const sc = new E.Scene(600, 600); sc.addWireframe(slug, build(FIX.shapes[slug].spec)); sc.rotateAll('X', 0.4); sc.fitAll();
+  sameSample(sc.wireframes.get(slug).nodes, smp, 1e-9, `fitAll ${slug}`, 4); n++;
+}
+{
+  const sc = new E.Scene(600, 600), t0 = Date.now();
+  assert.deepEqual(sc.timedAction(t0 + 1e6), []);
+  sc.startTimedDemo([['cube', () => build(FIX.shapes.cube.spec)], ['octa', () => build(FIX.shapes.octa.spec)]], 5);
+  assert.deepEqual([...sc.wireframes.keys()], ['cube']);
+  assert.deepEqual(sc.timedAction(Date.now() + 1000), []);
+  assert.deepEqual(sc.timedAction(Date.now() + 6000), ['cube']); assert.deepEqual([...sc.wireframes.keys()], ['octa']);
+  assert.deepEqual(sc.timedAction(Date.now() + 6000), ['octa']); assert.deepEqual([...sc.wireframes.keys()], ['cube']);
+  sc.stopTimedDemo(); assert.deepEqual(sc.timedAction(Date.now() + 1e6), []); n++;
+}
 // 6. key table identical to wireframe_scene.KEY_BINDINGS
 assert.deepEqual(E.KEY_BINDINGS, FIX.keys); n++;
 // 7. keyboard mapping and the orthographic projection

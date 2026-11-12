@@ -86,6 +86,17 @@ def subdivide_cases():
             "octasphere_centred": {"nodes": sample(osph.nodes[:, :3]), "faces": len(osph.faces)}}
 
 
+def fit_cases():
+    out = {}
+    for slug in ("cube", "octa", "param_torus"):
+        scene = ws.WireframeScene(WIDTH, HEIGHT)
+        scene.addWireframe(slug, build_reference(slug))
+        scene.rotateAll("X", 0.4)
+        scene.fitAll()
+        out[slug] = sample(scene.wireframes[slug].nodes)
+    return out
+
+
 def obj_case():
     m = basic.loadOBJ(str(SAMPLE_OBJ))
     return {"nodes": m.nodes[:, :3].tolist(), "faces": [[int(i) for i in f[0]] for f in m.faces],
@@ -94,7 +105,7 @@ def obj_case():
 
 def fixture():
     return {"shapes": shape_cases(), "scenes": scene_cases(), "ops": CHECK_OPS, "matrices": matrix_cases(),
-            "subdivide": subdivide_cases(), "obj": obj_case(), "keys": ws.KEY_BINDINGS,
+            "subdivide": subdivide_cases(), "fit": fit_cases(), "obj": obj_case(), "keys": ws.KEY_BINDINGS,
             "rand": "frac(k * 0.6180339887498949), k = 1, 2, ... (stands in for random.random in FractalLandscape)"}
 
 

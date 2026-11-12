@@ -50,6 +50,7 @@ def _run_script_until_event_loop(path, monkeypatch):
 def test_matrix_display_starts_without_optional_files(tmp_path, monkeypatch):
     """Running pygame_MatrixDisplay.py must not need teapot.obj (not in the repo) or build every model up front."""
     monkeypatch.chdir(tmp_path)  # no teapot.obj here
+    monkeypatch.setattr(sys, "argv", ["pygame_MatrixDisplay.py"])
     pv = _run_script_until_event_loop(PKG / "pygame_MatrixDisplay.py", monkeypatch)["pv"]
     assert list(pv.wireframes) == ["octasphere"]
     assert np.allclose(pv.wireframes["octasphere"].findCentre()[:2], [300, 300])
@@ -144,3 +145,49 @@ def test_viewer_keys_drive_the_shared_scene_operations():
     pv.display()
     assert np.array_equal(pv.wireframes["o"].nodes, ref.wireframes["o"].nodes)
     pygame.quit()
+
+
+# --- timed demo (ProjectionViewer.timedAction) ----------------------------------------------------------------------
+from datetime import datetime, timedelta  # noqa: E402
+
+
+def _aged(wf, seconds):
+    wf.initTime_raw = datetime.now() - timedelta(seconds=seconds)
+    return wf
+
+
+def test_timed_action_is_off_by_default(capsys):
+    """Shapes stay on screen however old they are, and nothing is printed every frame."""
+    from wireframe_scene import WireframeScene
+    scene = WireframeScene(600, 600)
+    scene.addWireframe("cube", _aged(shapes.Cuboid((300, 300, 0), (50, 50, 50)), 60))
+    scene.addWireframe("octasphere", _aged(shapes.Octasphere(), 60))  # name '' did not match its key
+    for _ in range(3):
+        assert scene.timedAction(datetime.now()) == []
+    assert list(scene.wireframes) == ["cube", "octasphere"]
+    assert capsys.readouterr().out == ""
+
+
+def test_timed_demo_cycles_through_models(capsys):
+    from wireframe_scene import WireframeScene
+    scene = WireframeScene(600, 600)
+    models = [("tetra", lambda: shapes.Tetrahedron((0, 0, 0), 100)), ("octa", shapes.Octahedron)]
+    scene.startTimedDemo(models, lifetime=5)
+    assert list(scene.wireframes) == ["tetra"]
+    assert scene.timedAction(datetime.now()) == []  # younger than 5 s
+    later = datetime.now() + timedelta(seconds=6)
+    assert scene.timedAction(later) == ["tetra"] and list(scene.wireframes) == ["octa"]
+    octa = scene.wireframes["octa"]
+    assert np.allclose(octa.findCentre()[:2], [300, 300])
+    assert np.isclose(np.linalg.norm(octa.nodes[:, :3] - octa.findCentre()[:3], axis=1).max(), 230)
+    _aged(octa, 6)
+    assert scene.timedAction(datetime.now()) == ["octa"] and list(scene.wireframes) == ["tetra"]
+    assert capsys.readouterr().out == ""
+
+
+def test_matrix_display_demo_option(monkeypatch):
+    """python pygame_MatrixDisplay.py --demo 4 starts the timed demo with the first model."""
+    monkeypatch.setattr(sys, "argv", ["pygame_MatrixDisplay.py", "--demo", "4"])
+    pv = _run_script_until_event_loop(PKG / "pygame_MatrixDisplay.py", monkeypatch)["pv"]
+    assert pv.lifetime == 4 and len(pv.demo) >= 10 and list(pv.wireframes) == [pv.demo[0][0]]
+    assert "teapot" not in [n for n, _ in pv.demo]

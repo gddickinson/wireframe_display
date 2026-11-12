@@ -21,18 +21,9 @@ export async function makeShape(entry, rand = Math.random) {
   return wf;
 }
 
-// Web addition: centre the scene (key 0) and scale it about the screen centre (as the = / - keys do) so the largest
-// node distance from the centre is `radius` px. The desktop app only centres; its unit-sized shapes start 1 px wide.
-export function fit(scene, radius = 230) {
-  scene.centerAll();
-  let r = 0;
-  for (const wf of scene.wireframes.values()) {
-    const c = wf.findCentre();
-    for (const v of wf.nodes) r = Math.max(r, Math.hypot(v[0] - c[0], v[1] - c[1], v[2] - c[2]));
-  }
-  if (r > 0) scene.scaleAll(radius / r);
-  for (const wf of scene.wireframes.values()) wf.history = [];
-}
+// Fit: WireframeScene.fitAll (centre, then scale so the largest node distance from the centre is `radius` px).
+// The desktop app uses it in its timed demo; on start-up it only centres, so unit-sized shapes start 1 px wide.
+export function fit(scene, radius = 230) { scene.fitAll(radius); }
 
 export function setupCanvas(canvas, size = SIZE) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);

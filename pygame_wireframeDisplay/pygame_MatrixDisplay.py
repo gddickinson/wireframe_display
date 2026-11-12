@@ -69,21 +69,7 @@ class ProjectionViewer(WireframeScene):
                     
             self.display()
             pygame.display.flip()   
-            self.timedAction()
-
-
-    def timedAction(self):
-        self.toRemove = []
-        for wireframe in self.wireframes.values():
-            t = (datetime.now() - wireframe.initTime_raw).total_seconds() 
-            if t > 10:
-                self.toRemove.append(wireframe.name)
-        if len(self.toRemove) > 0:
-            for name in self.toRemove:
-                self.removeWireframe(name)
-        
-                
-                
+            self.timedAction(datetime.now())  # timed demo (off unless started, see --demo)
 
 
     def display(self):
@@ -127,7 +113,13 @@ class ProjectionViewer(WireframeScene):
 
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
+    import argparse
+    ap = argparse.ArgumentParser(description='Matrix wireframe viewer')
+    ap.add_argument('--demo', type=float, nargs='?', const=10, metavar='SECONDS',
+                    help='timed demo: show each model for SECONDS (default 10), then the next')
+    demo_seconds = ap.parse_args().demo
+
     pv = ProjectionViewer(600, 600)
     x,y,z = (300,300,250)
     w,h,d = (50,50,50)
@@ -154,8 +146,11 @@ if __name__ == '__main__':
                }
     
     wf_name = 'octasphere'
-    pv.addWireframe(wf_name, wf_models[wf_name]())
-    pv.centerAll()
+    if demo_seconds:
+        pv.startTimedDemo([(k, f) for k, f in wf_models.items() if k != 'teapot'], lifetime=demo_seconds)
+    else:
+        pv.addWireframe(wf_name, wf_models[wf_name]())
+        pv.centerAll()
      
     
     #imageTest = loadImage(r"C:\Users\g_dic\Pictures\Camera Roll\WIN_20200722_20_16_37_Pro.jpg")

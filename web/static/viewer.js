@@ -3,7 +3,7 @@
 // rotate, wheel to zoom, Fit, several shapes at once and OBJ files from your computer.
 import { route, app, esc, list, animate, rng, slider } from './core.js';
 import { keyName, KEY_BINDINGS as KEYS } from './wire_engine.js';
-import { loadOBJ } from './shapes_engine.js';
+import { loadOBJ, build } from './shapes_engine.js';
 import { catalogue, newScene, makeShape, fit, setupCanvas, draw } from './render.js';
 
 const GROUPS = [['Move', ['LEFT', 'RIGHT', 'UP', 'DOWN']], ['Zoom', ['EQUALS', 'MINUS']], ['Rotate', ['q', 'w', 'a', 's', 'z', 'x']],
@@ -31,6 +31,7 @@ route('viewer', async (_args, query) => {
       <label for="obj">Or open an OBJ file</label><input type="file" id="obj" accept=".obj,text/plain">
       <div id="keys"></div>
       <div id="sliders"></div>
+      <label class="chk"><input type="checkbox" id="demo"> Timed demo: a new shape every 10 s (desktop: --demo)</label>
       <div class="flags">${list(FLAGS, ([k, t]) => `<label class="chk"><input type="checkbox" data-flag="${k}"> ${esc(t)}</label>`)}</div>
       <div class="readout" id="readout"></div>
       <p class="small mute" id="err"></p>
@@ -49,7 +50,7 @@ route('viewer', async (_args, query) => {
   const err = msg => { document.getElementById('err').textContent = msg || ''; };
 
   async function load(entry, add = false) {
-    err();
+    err(); scene.stopTimedDemo(); document.getElementById('demo').checked = false;
     try {
       const wf = await makeShape(entry, rng(seed));
       if (!add) scene.wireframes = new Map();
@@ -88,6 +89,11 @@ route('viewer', async (_args, query) => {
   keysHost.onclick = e => { const k = e.target.closest('[data-key]'); if (k) { scene.applyKey(k.dataset.key); touch(); } };
   slider(document.getElementById('sliders'), { id: 'radius', label: 'Node radius', min: 0, max: 10, value: 4, unit: ' px' },
     v => { scene.nodeRadius = v; touch(); });
+  document.getElementById('demo').onchange = e => {
+    if (e.target.checked) scene.startTimedDemo(shapes.filter(s => !s.python_only).map(s => [s.slug, () => build(s, { rand: rng(seed) })]), 10);
+    else scene.stopTimedDemo();
+    touch();
+  };
   document.querySelectorAll('[data-flag]').forEach(cb => { cb.onchange = () => { scene[cb.dataset.flag] = cb.checked; touch(); }; });
 
   canvas.addEventListener('keydown', e => {
@@ -119,6 +125,7 @@ route('viewer', async (_args, query) => {
     }
     while (t - t500 >= 500) { t500 += 500; if (scene.updateEvent) { scene.update(); dirty = true; } }
     if (scene.useRandomColour) dirty = true;
+    if (scene.lifetime !== null && scene.timedAction(Date.now()).length) dirty = true;
     if (!dirty) return;
     dirty = false;
     draw(ctx, scene);
@@ -138,7 +145,7 @@ function readout(scene) {
   for (const wf of scene.wireframes.values()) { nodes += wf.nodes.length; edges += wf.edges.length; faces += wf.faces.length; hist = Math.max(hist, wf.history.length); }
   const first = scene.wireframes.values().next().value, c = first ? first.findCentre() : [0, 0, 0];
   const row = (k, v) => `<div><span>${k}</span><b>${v}</b></div>`;
-  document.getElementById('readout').innerHTML = row('shapes', scene.wireframes.size) + row('nodes', nodes.toLocaleString('en')) +
+  document.getElementById('readout').innerHTML = row('shapes', [...scene.wireframes.keys()].join(', ').slice(0, 28) || 0) + row('nodes', nodes.toLocaleString('en')) +
     row('edges', edges.toLocaleString('en')) + row('faces', faces.toLocaleString('en')) + row('history', hist) +
     row('centre', c.slice(0, 3).map(v => v.toFixed(0)).join(', ')) +
     row('edges / nodes', `${scene.displayEdges ? 'on' : 'off'} / ${scene.displayNodes ? 'on' : 'off'}`);

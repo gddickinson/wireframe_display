@@ -46,8 +46,8 @@ Rx(θ) = | 0  cos θ −sin θ   0 |
   <p>Web additions: drag to rotate (rotateAll about Y and X), the mouse wheel (the = and − zoom), Fit (centre, then scale so the shape
   fills the view; the desktop app only centres, so unit-sized shapes start one pixel wide), Add (several shapes at once), a node-size
   slider, and opening your own OBJ file (parsed in the browser by a port of <code>loadOBJ</code>).
-  Not ported: the desktop's <code>timedAction</code>, which tries to remove shapes 10 seconds after they were created (see the README), the
-  teapot (teapot.obj is not in the repository), and the MRI, super-resolution and image loaders, which read files from the author's machine.</p>
+  The timed demo (<code>python pygame_MatrixDisplay.py --demo</code>: a new shape every 10 s) is a check box; the web demo
+  cycles through the shapes the browser builds. Not ported: the teapot (teapot.obj is not in the repository), and the MRI, super-resolution and image loaders, which read files from the author's machine.</p>
 
   <h2>Run it yourself</h2>
   <h3>Desktop app (Pygame)</h3>

@@ -113,6 +113,9 @@ class WireframeScene:
         self.moveCenter = (self.width / 2, self.height / 2, 0)
         self.history = []
         self.yoyoCounter = 0
+        self.lifetime = None  # seconds a shape stays on screen in the timed demo; None = off
+        self.demo = []  # (name, factory) models the timed demo cycles through
+        self.demoIndex = 0
 
     # matrices as methods, as in the original ProjectionViewer
     perspectiveMatrix = staticmethod(perspectiveMatrix)
@@ -185,6 +188,45 @@ class WireframeScene:
         for wireframe in self.wireframes.values():
             vector = newPos - wireframe.findCentre()
             wireframe.update('transform', self.translationMatrix(vector[0], vector[1], vector[2]))
+
+    def fitAll(self, radius=230):
+        """Centre the shapes and scale them about the screen centre so the farthest node is `radius` px from its
+        shape's centre (the web viewer's Fit; also used by the timed demo). Clears the history."""
+        self.centerAll()
+        r = 0.0
+        for wireframe in self.wireframes.values():
+            c = wireframe.findCentre()[:3]
+            r = max(r, float(np.linalg.norm(wireframe.nodes[:, :3] - c, axis=1).max()))
+        if r > 0:
+            self.scaleAll(radius / r)
+        for wireframe in self.wireframes.values():
+            wireframe.history = []
+
+    def startTimedDemo(self, models, lifetime=10):
+        """Show models [(name, factory), ...] one after another, each for `lifetime` seconds."""
+        self.demo, self.lifetime, self.demoIndex = list(models), lifetime, 0
+        for name in list(self.wireframes):
+            self.removeWireframe(name)
+        self._nextDemoModel()
+
+    def _nextDemoModel(self):
+        name, factory = self.demo[self.demoIndex % len(self.demo)]
+        self.demoIndex += 1
+        self.addWireframe(name, factory())
+        self.fitAll()
+
+    def timedAction(self, now):
+        """Timed demo: remove shapes older than self.lifetime seconds (by their scene key) and show the next model.
+        Does nothing while self.lifetime is None (the default). Returns the names removed."""
+        if self.lifetime is None:
+            return []
+        expired = [name for name, wf in self.wireframes.items()
+                   if (now - wf.initTime_raw).total_seconds() > self.lifetime]
+        for name in expired:
+            self.removeWireframe(name)
+        if expired and self.demo:
+            self._nextDemoModel()
+        return expired
 
     def subdivideAll(self):
         for wireframe in self.wireframes.values():

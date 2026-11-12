@@ -30,7 +30,7 @@ export class Wireframe {
   constructor(nodes = null) {
     this.nodes = []; this.edges = []; this.faces = [];
     this.initiated = false; this.history = []; this.historyMax = 20;
-    this.colour = [255, 255, 200]; this.name = '';
+    this.colour = [255, 255, 200]; this.name = ''; this.initTime = Date.now(); // ms (Python: initTime_raw)
     if (nodes && nodes.length) this.addNodes(nodes);
   }
   addNodes(list, reset = false) {
@@ -125,7 +125,8 @@ export class Scene {
     Object.assign(this, { width, height, rand, tetra, wireframes: new Map(), displayNodes: true, displayEdges: true,
       nodeColour: [255, 255, 255], edgeColour: [200, 200, 200], nodeRadius: 4, background: [10, 10, 50],
       animate: false, updateEvent: false, randomEvent: false, showHistory: false, colourShift: false,
-      useWireframeColour: false, useRandomColour: false, moveCenter: [width / 2, height / 2, 0], yoyoCounter: 0, history: [] });
+      useWireframeColour: false, useRandomColour: false, moveCenter: [width / 2, height / 2, 0], yoyoCounter: 0, history: [],
+      lifetime: null, demo: [], demoIndex: 0 });
   }
   addWireframe(name, wf) { this.wireframes.set(name, wf); this.history.push(name); }
   removeWireframe(name) { this.wireframes.delete(name); this.history = this.history.filter(n => n !== name); }
@@ -143,6 +144,32 @@ export class Scene {
   centerAll() { this.moveAll(this.width / 2, this.height / 2, 0); }
   moveAll(x, y, z) {
     this.each(wf => { const c = wf.findCentre(); wf.update('transform', translationMatrix(x - c[0], y - c[1], z - c[2])); });
+  }
+  // Centre, then scale about the screen centre so the farthest node is `radius` px from its shape's centre; clear history.
+  fitAll(radius = 230) {
+    this.centerAll();
+    let r = 0;
+    this.each(wf => { const c = wf.findCentre(); for (const v of wf.nodes) r = Math.max(r, Math.hypot(v[0] - c[0], v[1] - c[1], v[2] - c[2])); });
+    if (r > 0) this.scaleAll(radius / r);
+    this.each(wf => { wf.history = []; });
+  }
+  // Timed demo: models [[name, factory], ...], each shown for `lifetime` seconds (pygame_MatrixDisplay.py --demo)
+  startTimedDemo(models, lifetime = 10) {
+    Object.assign(this, { demo: models.slice(), lifetime, demoIndex: 0 });
+    for (const name of [...this.wireframes.keys()]) this.removeWireframe(name);
+    this.nextDemoModel();
+  }
+  stopTimedDemo() { this.lifetime = null; this.demo = []; }
+  nextDemoModel() {
+    const [name, factory] = this.demo[this.demoIndex++ % this.demo.length];
+    this.addWireframe(name, factory()); this.fitAll();
+  }
+  timedAction(nowMs) {
+    if (this.lifetime === null) return [];
+    const expired = [...this.wireframes].filter(([, wf]) => (nowMs - wf.initTime) / 1000 > this.lifetime).map(([n]) => n);
+    for (const n of expired) this.removeWireframe(n);
+    if (expired.length && this.demo.length) this.nextDemoModel();
+    return expired;
   }
   subdivideAll() { this.each(wf => wf.subdivide()); }
   toggleEdges() { this.displayEdges = !this.displayEdges; }
