@@ -32,8 +32,7 @@ The key table and all scene operations live in the Pygame-free `wireframe_scene.
 `pygame_MatrixDisplay.py` adds the window, event loop and drawing. Timed demo: `python pygame_MatrixDisplay.py --demo [SECONDS]` shows each demo model for SECONDS (default 10),
 scaled to fit, then the next (`WireframeScene.startTimedDemo` / `timedAction`; off by default).
 
-`pygame_wireframe_test.py` and `pygame_wireframe_examples.py` import modules (`wireframe`, `wireframeDisplay`,
-`basicShapes`) that are not in this repository, so they do not run as they are.
+Two tutorial scripts that need modules from another repository are kept in `_archive/` (see its README).
 
 ## Web app and static site
 

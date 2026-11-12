@@ -12,7 +12,9 @@
 | `pygame_display.py`, `pygame_wireframe.py` | earliest step: `Node`/`Edge` objects, trigonometric rotation |
 | `pygame_Matrix-display.py`, `pygame_Matrix-wireframe.py` | first matrix step (hyphenated: run as scripts, not importable) |
 | `pygame_loadOBJ_test.py` | matplotlib OBJ plotting experiment |
-| `pygame_wireframe_test.py`, `pygame_wireframe_examples.py` | tutorial examples importing modules not in the repo (do not run) |
+
+## `_archive/`
+Tutorial scripts copied from petercollingridge/Pygame3D that need its modules (see `_archive/README.md`).
 
 ## Web: `web/`
 | File | Contents |

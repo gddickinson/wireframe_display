@@ -198,3 +198,20 @@ def test_every_desktop_script_compiles():
     """pygame_loadOBJ_test.py ended in an `if __name__ == "__main__":` whose body was all comments (IndentationError)."""
     for path in sorted(PKG.glob("*.py")):
         compile(path.read_text(), str(path), "exec")
+
+
+def test_every_desktop_script_imports_only_available_modules():
+    """Scripts in pygame_wireframeDisplay/ must not import modules missing from the repo and the requirements."""
+    import ast
+    import importlib.util
+    missing = []
+    for path in sorted(PKG.glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            names = [a.name for a in node.names] if isinstance(node, ast.Import) else \
+                [node.module] if isinstance(node, ast.ImportFrom) and node.module and node.level == 0 else []
+            for name in names:
+                top = name.split(".")[0]
+                if not (PKG / f"{top}.py").exists() and importlib.util.find_spec(top) is None:
+                    missing.append(f"{path.name}: {name}")
+    optional = {"nilearn", "alphashape", "matplotlib"}  # inside optional loaders (MRI, loadImageLetter) / plotting
+    assert [m for m in missing if m.split(": ")[1].split(".")[0] not in optional] == []
