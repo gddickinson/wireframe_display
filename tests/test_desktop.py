@@ -191,3 +191,10 @@ def test_matrix_display_demo_option(monkeypatch):
     pv = _run_script_until_event_loop(PKG / "pygame_MatrixDisplay.py", monkeypatch)["pv"]
     assert pv.lifetime == 4 and len(pv.demo) >= 10 and list(pv.wireframes) == [pv.demo[0][0]]
     assert "teapot" not in [n for n, _ in pv.demo]
+
+
+
+def test_every_desktop_script_compiles():
+    """pygame_loadOBJ_test.py ended in an `if __name__ == "__main__":` whose body was all comments (IndentationError)."""
+    for path in sorted(PKG.glob("*.py")):
+        compile(path.read_text(), str(path), "exec")

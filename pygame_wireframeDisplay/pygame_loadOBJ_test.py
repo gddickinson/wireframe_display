@@ -203,3 +203,4 @@ if __name__ == "__main__":
     # cube.outputEdges()
     # cube.outputFaces()
  
+    pass  # demo above kept for reference (the block had no statements: IndentationError)
