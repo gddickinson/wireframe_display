@@ -215,3 +215,29 @@ def test_every_desktop_script_imports_only_available_modules():
                     missing.append(f"{path.name}: {name}")
     optional = {"nilearn", "alphashape", "matplotlib"}  # inside optional loaders (MRI, loadImageLetter) / plotting
     assert [m for m in missing if m.split(": ")[1].split(".")[0] not in optional] == []
+
+
+def test_load_obj_splits_polygons_into_a_fan(tmp_path):
+    """An n-gon becomes triangles (0, i, i+1); consecutive triples (i, i+1, i+2) overlapped for 5+ corners."""
+    p = tmp_path / "pentagon.obj"
+    p.write_text("".join(f"v {np.cos(a):.6f} {np.sin(a):.6f} 0\n" for a in np.linspace(0, 2 * np.pi, 5, endpoint=False))
+                 + "f 1 2 3 4 5\n")
+    m = shapes.loadOBJ(str(p))
+    assert [list(map(int, f[0])) for f in m.faces] == [[0, 1, 2], [0, 2, 3], [0, 3, 4]]
+    p3 = m.nodes[:, :3]
+    area = sum(np.linalg.norm(np.cross(p3[b] - p3[a], p3[c] - p3[a])) / 2 for a, b, c in ([0, 1, 2], [0, 2, 3], [0, 3, 4]))
+    assert np.isclose(area, 5 / 2 * np.sin(2 * np.pi / 5))  # triangles tile the pentagon exactly
+
+
+def test_early_matrix_wireframe_methods_work_on_numpy_nodes():
+    """pygame_Matrix-wireframe.py kept node.x-style methods from the object version; they raised AttributeError."""
+    ns = runpy.run_path(str(PKG / "pygame_Matrix-wireframe.py"), run_name="not_main")
+    w = ns["Wireframe"]()
+    w.addNodes([(x, y, z) for x in (0, 2) for y in (0, 2) for z in (0, 2)])
+    assert np.allclose(w.findCentre(), (1, 1, 1))
+    w.translate("x", 3)
+    assert np.allclose(w.findCentre(), (4, 1, 1))
+    w.scale(0, 0, 2)
+    assert np.allclose(w.findCentre(), (8, 2, 2))
+    w.rotateZ(np.pi / 2, args=w.findCentre())
+    assert np.allclose(w.findCentre(), (8, 2, 2)) and np.allclose(np.ptp(w.nodes[:, :3], axis=0), (4, 4, 4))

@@ -204,14 +204,14 @@ export function Octasphere(w = 10, h = 10, d = 10) {
   const o = new Wireframe(); o.addNodes(v); o.addFaces(f); return o;
 }
 
-// --- OBJ files (pygame_basicShapes.loadOBJ: vertices and faces split into consecutive triangles) -------------------------
+// --- OBJ files (pygame_basicShapes.loadOBJ: vertices, polygons split into a triangle fan) -------------------------
 export function loadOBJ(text) {
   const vertices = [], triangles = [];
   for (const line of text.split('\n')) {
     const c = line.trim().split(/\s+/);
     if (c[0] === 'f') {
       const idx = c.slice(1).map(s => parseInt(s.split('/')[0], 10) - 1);
-      for (let i = 0; i < idx.length - 2; i++) triangles.push(idx.slice(i, i + 3));
+      for (let i = 0; i < idx.length - 2; i++) triangles.push([idx[0], idx[i + 1], idx[i + 2]]); // fan
     } else if (c[0] === 'v') vertices.push(c.slice(1, 4).map(Number));
   }
   if (!vertices.length) throw new Error('No vertices ("v x y z" lines) found');

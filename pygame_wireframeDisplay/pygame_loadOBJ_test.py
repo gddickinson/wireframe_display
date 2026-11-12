@@ -25,7 +25,7 @@ def read_obj(filename):
                 # e.g. "f 1/1/1/ 2/2/2 3/3/3 4/4/4 ..."
                 indices = list(map(lambda c: int(c.split('/')[0]) - 1, components[1:]))
                 for i in range(0, len(indices) - 2):
-                    triangles.append(indices[i: i+3])
+                    triangles.append([indices[0], indices[i+1], indices[i+2]])  # fan from the first corner
             elif components[0] == "v": # vertex data
                 # e.g. "v  30.2180 89.5757 -76.8089"
                 vertex = list(map(lambda c: float(c), components[1:]))
