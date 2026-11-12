@@ -35,3 +35,20 @@ Needs George's decision (not changed):
   overlapping for pentagons and larger. Left as is (the web port does the same).
 - Credit: much of the structure (Wireframe / ProjectionViewer / key_to_function / Spheroid / FractalLandscape) appears
   to follow Peter Collingridge's "3D graphics with Pygame" tutorial; the site does not claim this. Add a credit?
+
+## 2026-11-11 (later): follow-up fixes after merge (branch `web-interface`, fast-forwarded to main)
+George: "fix any other problems you come across". Each fix has its own commit and a failing-first test in tests/test_desktop.py:
+- timedAction: now `WireframeScene.timedAction(now)`, off by default; `python pygame_MatrixDisplay.py --demo [SECONDS]`
+  starts a timed demo (each model fitted with the new `fitAll`, shown for SECONDS, then the next; removal by scene
+  key, nothing printed). Ported to the web engine (node-tested) with a "Timed demo" check box; Fit now uses `fitAll`.
+- `pygame_loadOBJ_test.py` did not compile (empty `__main__` block) -> `pass`; test that every script compiles.
+- `pygame_wireframe_examples.py` / `pygame_wireframe_test.py` are copies of examples.py / testAnimation.py from
+  petercollingridge/Pygame3D and need its modules (no licence file there, so not copied) -> moved to `_archive/` with
+  a README; test that no desktop script imports a missing module.
+- Credit to Peter Collingridge's "3D Graphics with Pygame" tutorial and Pygame3D added to README and About
+  (derivation checked against https://github.com/petercollingridge/Pygame3D: same shapes and matrix code).
+- `loadOBJ`: polygons now split into a fan (0, i, i+1); consecutive triples overlapped for 5+ corners (Python + JS).
+- `pygame_Matrix-wireframe.py`: translate / scale / findCentre / rotateX/Y/Z fixed for numpy rows.
+Checks: pytest tests/ 54 passed (test_web 37); node 56 checks; screenshots static (8 routes) and against
+run_web.py on 8118 (6 routes) all ok, phone overflow 0px.
+Still for George: Pygame3D has no licence file, yet several shapes and the matrix code derive from it (now credited).

@@ -4,8 +4,8 @@
 | File | Contents |
 |---|---|
 | `pygame_MatrixWireframe.py` | `Wireframe`: nodes as (x, y, z, 1) rows, edges, faces, history; `transform` (row vectors), `scale`/`shear`/`rotate` about a centre, `moveTo`, `changeShape`, `update` (records history), `subdivide` (onto the shape's own sphere) |
-| `wireframe_scene.py` | **Pygame-free** scene logic: matrix builders (`translationMatrix`, `scaleMatrix`, `rotateX/Y/ZMatrix`, `shearMatrix`, `perspectiveMatrix`), `KEY_BINDINGS`, `WireframeScene` (translateAll, scaleAll, rotateAll, shearAll, centerAll, moveAll, subdivideAll, spin, yoyo, animate_update, apply_key), `project` |
-| `pygame_MatrixDisplay.py` | `ProjectionViewer(WireframeScene)`: Pygame window, event loop (keys, 50 ms / 500 ms timers), `display()`, `timedAction`; `__main__` demo model table |
+| `wireframe_scene.py` | **Pygame-free** scene logic: matrix builders (`translationMatrix`, `scaleMatrix`, `rotateX/Y/ZMatrix`, `shearMatrix`, `perspectiveMatrix`), `KEY_BINDINGS`, `WireframeScene` (translateAll, scaleAll, rotateAll, shearAll, centerAll, moveAll, fitAll, subdivideAll, spin, yoyo, animate_update, startTimedDemo, timedAction, apply_key), `project` |
+| `pygame_MatrixDisplay.py` | `ProjectionViewer(WireframeScene)`: Pygame window, event loop (keys, 50 ms / 500 ms timers), `display()`; `__main__` demo model table, `--demo SECONDS` timed demo |
 | `pygame_basicShapes.py` | shape constructors: `Cuboid`, `Tetrahedron`, `Octahedron`, `Spheroid`, `HorizontalGrid`, `FractalLandscape`, `letter`, `Icosahedron`, `Octasphere`/`get_octasphere` (pyrr), `parametric_surface`, `loadOBJ`, `marchingCubes` (skimage), `convexHull` (scipy), `MRI`, `loadNIKONFile`, `loadImage*` (local files) |
 | `pygame_parametricShapes.py` | 14 surface functions f(u, v) → (x, y, z) |
 | `shape_catalogue.py` | **Pygame-free** catalogue of the demo shapes as (slug, name, group, constructor, kwargs); `entries()`, `build(slug)` |
