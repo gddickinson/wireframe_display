@@ -64,7 +64,10 @@ python run_web.py          # http://127.0.0.1:8118</pre>
   runs the Python side of the cross-check live. The static GitHub Pages site is built by <code>scripts/build_static.py</code>.</p>
 
   <h2>Credits</h2>
-  <p>wireframe_display by George Dickinson, MIT licence. The octasphere code credits
+  <p>wireframe_display by George Dickinson, MIT licence, based on Peter Collingridge's
+  <a href="https://www.petercollingridge.co.uk/tutorials/3d/pygame/">3D Graphics with Pygame</a> tutorial and its example code
+  (<a href="https://github.com/petercollingridge/Pygame3D">Pygame3D</a>): the node/edge wireframe, the matrix transformations, the
+  projection viewer and key table, and the cuboid, spheroid, grid and fractal-landscape shapes follow it. The octasphere code credits
   <a href="https://github.com/prideout/svg3d">prideout/svg3d</a>. A related project by the same author is
   <a href="https://github.com/gddickinson/wireframeDisplay">wireframeDisplay</a> (a PyQt/OpenGL scene viewer).
   Web version built with AI assistance from <a href="https://claude.com/">Claude (Anthropic)</a>.</p>`;

@@ -5,6 +5,12 @@ Python/Pygame scripts that build 3D wireframes (nodes, edges, faces), move them 
 draw them on a 600 × 600 window with an orthographic projection. The main viewer is
 `pygame_wireframeDisplay/pygame_MatrixDisplay.py`; the folder also holds earlier steps of the same viewer.
 
+**Credit:** based on Peter Collingridge's
+[3D Graphics with Pygame](https://www.petercollingridge.co.uk/tutorials/3d/pygame/) tutorial and its example code
+([petercollingridge/Pygame3D](https://github.com/petercollingridge/Pygame3D)): the node/edge wireframe, the matrix
+transformations, the projection viewer and key table, and the Cuboid, Spheroid, HorizontalGrid and FractalLandscape
+shapes follow it. The octasphere code credits [prideout/svg3d](https://github.com/prideout/svg3d).
+
 **Related repository:** [wireframeDisplay](https://github.com/gddickinson/wireframeDisplay) is a separate, newer
 PyQt5/OpenGL scene viewer by the same author. The two share a purpose and a few shapes (e.g. the identical letter-A
 geometry, tetra-/octa-/icosahedron, torus, sine surface) but no code: this repository is the Pygame matrix viewer.
